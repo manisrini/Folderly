@@ -146,6 +146,18 @@ class FileDataHelper {
         }
     }
 
+    
+    func fetchAllFolders(completion: @escaping (Result<[Folder], Error>) -> Void) {
+        let managedContext = dbManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+        
+        do {
+            let folders = try managedContext.fetch(fetchRequest)
+            completion(.success(folders))
+        } catch {
+            completion(.failure(error))
+        }
+    }
 
     
 }
