@@ -99,7 +99,7 @@ class FileDataHelper {
     }
     
     
-    func addFile(
+    func addFileToFolder(
         toFolderId: UUID,
         fileId: UUID,
         fileName: String,
@@ -146,6 +146,40 @@ class FileDataHelper {
         }
     }
 
+    func addFile(
+        fileId: UUID,
+        fileName: String,
+        filePath: String,
+        fileType: String,
+        completion: @escaping (Result<File?, Error>) -> Void
+    ) {
+        let managedContext = dbManager.persistentContainer.viewContext
+        
+        // Fetch the target folder
+        let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+        
+        if let entity = NSEntityDescription.entity(forEntityName: Entity.File.rawValue, in: managedContext) {
+            if let newFile = NSManagedObject(entity: entity, insertInto: managedContext) as? File {
+                newFile.id = fileId
+                newFile.name = fileName
+                newFile.filePath = filePath
+                newFile.type = fileType
+                
+                dbManager.saveContext(managedObjectContext: managedContext) { result in
+                    switch result {
+                    case .success:
+                        completion(.success(newFile))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            } else {
+                completion(.failure(NSError(domain: "CoreDataError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create file"])))
+            }
+        } else {
+            completion(.failure(NSError(domain: "CoreDataError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Entity description not found"])))
+        }
+    }
     
     func fetchAllFolders(completion: @escaping (Result<[Folder], Error>) -> Void) {
         let managedContext = dbManager.persistentContainer.viewContext

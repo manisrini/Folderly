@@ -21,9 +21,22 @@
 		2AE973282D303DBB0096F40E /* Folderly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folderly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2A1A07B42D37B15900E1CA80 /* Exceptions for "Folderly" folder in "Folderly" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2AE973272D303DBB0096F40E /* Folderly */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2AE9732A2D303DBB0096F40E /* Folderly */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2A1A07B42D37B15900E1CA80 /* Exceptions for "Folderly" folder in "Folderly" target */,
+			);
 			path = Folderly;
 			sourceTree = "<group>";
 		};
@@ -274,6 +287,9 @@
 				DEVELOPMENT_TEAM = LFMXCJUU8Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Folderly/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take a photo";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photo library to choose a photo";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -303,6 +319,9 @@
 				DEVELOPMENT_TEAM = LFMXCJUU8Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Folderly/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take a photo";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photo library to choose a photo";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

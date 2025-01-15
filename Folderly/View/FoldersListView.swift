@@ -10,24 +10,51 @@ import SwiftUI
 struct FoldersListView: View {
     
     @State private var isOptionsSheetPresented = false
-    @State private var isAddSheetPresented = false
+    @State private var isAddFolderSheetPresented = false
+    @State private var isAttachmentSheetPresented = false
+
+    var isSaveLocal: Bool = true
+    var isVideoEnabled: Bool = true
+    var isPhotosEnabled: Bool = true
+    var isFileEnabled: Bool = true
+    
+    
+    @State private var isImagePickerPresented = false
+    @State private var filePath: URL?
+    @State private var fileId: UUID?
+    @State private var fileName: String = ""
+    @State private var showCamera = false
+    @State private var showPhotoLibrary = false
+
+
     @State private var textFieldStr : String = ""
     
     @ObservedObject var viewModel = FoldersListViewModel()
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView(){
-                ForEach(viewModel.folders,id: \.id){ folder in
-                    NavigationLink {
-                        Text(folder.name ?? "")
-                            .foregroundStyle(Color.black)
-                    } label: {
-                        Text(folder.name ?? "")
+                VStack(alignment : .leading){
+                    ForEach(viewModel.listData,id: \.self){ item in
+                        NavigationLink {
+                            FoldersListView()
+                        } label: {
+                            ListCellView(
+                                name: item.name,
+                                createdTime: viewModel.getDateStr(date: item.creationDate),
+                                didTapMenu: {
+                                print("tapped")
+                            })
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Folderly")
+                        .font(.title)
+                }
                 ToolbarItem {
                     Button {
                         isOptionsSheetPresented.toggle()
@@ -35,23 +62,79 @@ struct FoldersListView: View {
                         Image(systemName: "plus")
                     }
                 }
+                
             }
             .sheet(isPresented: $isOptionsSheetPresented) {
-                BottomSheetComponent(showAddSheet: $isAddSheetPresented, showOptionsSheet: $isOptionsSheetPresented)
-                    .presentationDetents([.height(200)])
+                BottomSheetComponent(
+                    showAddSheet: $isAddFolderSheetPresented,
+                    showOptionsSheet: $isOptionsSheetPresented,
+                    showAttachmentSheet: $isAttachmentSheetPresented
+                )
+                .presentationDetents([.height(200)])
             }
-            .sheet(isPresented: $isAddSheetPresented) {
+            .sheet(isPresented: $isAddFolderSheetPresented) {
                 AddFolderView(
                     textFieldStr: $textFieldStr,
-                    isAddSheetPresented: $isAddSheetPresented,
+                    isAddSheetPresented: $isAddFolderSheetPresented,
                     didClickAdd: {
-                        print(textFieldStr)
                         viewModel.addFolder(folderName: textFieldStr)
                         textFieldStr.removeAll()
                     }
                 )
                 .padding()
                 .presentationDetents([.height(200)])
+            }
+            .confirmationDialog("Choose an Option", isPresented: $isAttachmentSheetPresented) {
+                
+                Button {
+                    showCamera = true
+                } label: {
+                    Text("Camera")
+                }
+                
+                if isPhotosEnabled {
+                    Button {
+                        showPhotoLibrary = true
+                    } label: {
+                        Text("Photos Library")
+                    }
+                }
+                
+                if isFileEnabled {
+                    Button {
+                    } label: {
+                        Text("File Library")
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            }
+            .sheet(isPresented: $showCamera) {
+                ImagePicker(
+                    sourceType: .camera,
+                    isImagePickerPresented: $showCamera,
+                    filePath: $filePath,
+                    fileId: $fileId,
+                    fileName: $fileName
+                )
+            }
+            .sheet(isPresented: $showPhotoLibrary) {
+                ImagePicker(
+                    sourceType: .photoLibrary,
+                    isImagePickerPresented: $showPhotoLibrary,
+                    filePath: $filePath,
+                    fileId: $fileId,
+                    fileName: $fileName
+                )
+            }
+            .onChange(of: filePath) {
+                oldValue,
+                newValue in
+                self.viewModel.addFile(
+                    fileId: fileId ?? UUID(),
+                    fileName: fileName,
+                    filePath: filePath,
+                    fileType: .Image
+                )
             }
         }
         .onAppear{

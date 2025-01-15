@@ -11,17 +11,23 @@ struct BottomSheetComponent: View {
     
     @Binding var showAddSheet : Bool
     @Binding var showOptionsSheet : Bool
-    
+    @Binding var showAttachmentSheet : Bool
+    var didTapAddAttachment : (() -> ())?
+
     var body: some View {
         HStack{
             VStack(spacing : 15) {
                 Button("Add Folder") {
+                    print("ksdjbnfkj")
                     showOptionsSheet = false
                     showAddSheet = true
                 }
                 
                 Button("Add Image") {
-                    print("Add Image clicked")
+                    print("showksdjfgbk")
+                    showOptionsSheet = false
+                    showAttachmentSheet = true
+                    self.didTapAddAttachment?()
                 }
                 
                 Spacer()
@@ -36,5 +42,5 @@ struct BottomSheetComponent: View {
 }
 
 #Preview {
-    BottomSheetComponent(showAddSheet: .constant(true), showOptionsSheet: .constant(true))
+    BottomSheetComponent(showAddSheet: .constant(true), showOptionsSheet: .constant(true), showAttachmentSheet: .constant(true))
 }
