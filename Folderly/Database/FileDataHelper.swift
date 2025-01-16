@@ -55,7 +55,7 @@ class FileDataHelper {
     
     
     public func addSubFolder(
-        parentId: UUID,
+        parentFolderId: UUID,
         subFolderId: UUID,
         subFolderName: String,
         isFavorite: Bool = false,
@@ -64,7 +64,7 @@ class FileDataHelper {
     ) {
         let managedContext = dbManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", parentId as CVarArg)
+        fetchRequest.predicate = NSPredicate(format: "id == %@", parentFolderId as CVarArg)
         
         do {
             if let parentFolder = try managedContext.fetch(fetchRequest).first {
@@ -105,6 +105,7 @@ class FileDataHelper {
         fileName: String,
         filePath: String,
         fileType: String,
+        creationDate: Date = Date(),
         completion: @escaping (Result<File?, Error>) -> Void
     ) {
         let managedContext = dbManager.persistentContainer.viewContext
@@ -122,6 +123,7 @@ class FileDataHelper {
                         newFile.name = fileName
                         newFile.filePath = filePath
                         newFile.type = fileType
+                        newFile.creationDate = creationDate
                         newFile.folder = folder
                         
                         dbManager.saveContext(managedObjectContext: managedContext) { result in
@@ -151,6 +153,7 @@ class FileDataHelper {
         fileName: String,
         filePath: String,
         fileType: String,
+        creationDate: Date = Date(),
         completion: @escaping (Result<File?, Error>) -> Void
     ) {
         let managedContext = dbManager.persistentContainer.viewContext
@@ -161,7 +164,7 @@ class FileDataHelper {
                 newFile.name = fileName
                 newFile.filePath = filePath
                 newFile.type = fileType
-                newFile.creationDate = Date()
+                newFile.creationDate = creationDate
                 
                 dbManager.saveContext(managedObjectContext: managedContext) { result in
                     switch result {
@@ -182,7 +185,22 @@ class FileDataHelper {
     func fetchAllFolders(completion: @escaping (Result<[Folder], Error>) -> Void) {
         let managedContext = dbManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
-        
+        fetchRequest.predicate = NSPredicate(format: "parentFolder == nil")
+
+        do {
+            let folders = try managedContext.fetch(fetchRequest)
+            completion(.success(folders))
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    
+    func fetchSubFolders(for folder : UUID,completion: @escaping (Result<[Folder], Error>) -> Void) {
+        let managedContext = dbManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "parentFolder.id == %@",folder as CVarArg)
+
         do {
             let folders = try managedContext.fetch(fetchRequest)
             completion(.success(folders))
@@ -204,6 +222,16 @@ class FileDataHelper {
         }
     }
 
+    func fetchFiles(for folder : UUID,completion: @escaping (Result<[File], Error>) -> Void) {
+        let managedContext = dbManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<File> = File.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "folder.id == %@",folder as CVarArg)
+        do {
+            let files = try managedContext.fetch(fetchRequest)
+            completion(.success(files))
+        } catch {
+            completion(.failure(error))
+        }
+    }
 
-    
 }

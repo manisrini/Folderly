@@ -29,13 +29,24 @@ class FoldersListViewModel : ObservableObject {
     
     @Published var listData : [ListViewModel] = []
     var foldersList : [ListViewModel] = []
-    var folderId : UUID? = nil
+    var folder : ListViewModel? = nil
     var dataManager : FileDataHelper
     
-    init(folderId : UUID? = UUID(uuidString: ""),dataManager: FileDataHelper = FileDataHelper()) {
+    init(folder : ListViewModel? = nil,dataManager: FileDataHelper = FileDataHelper()) {
         self.dataManager = dataManager
-        self.folderId = folderId
+        self.folder = folder
     }
+    
+    func getListData(){
+        if let folder = folder, let folderId = folder.id{ //Has a parent folder
+            self.getSubFolders(for: folderId)
+            self.getFiles(for: folderId)
+        }else{
+            self.getFolders()
+            self.getFiles()
+        }
+    }
+
     
     func addFolder(folderName : String) {
         dataManager.addFolder(id: UUID(), name: folderName, creationDate: Date()) { result in
@@ -58,10 +69,32 @@ class FoldersListViewModel : ObservableObject {
     }
     
     
-    func getFoldersAndFiles(){
-        self.getFolders()
-        self.getFiles()
+    func addSubFolder(subFolderName : String,parentFolderId : UUID?) {
+        
+        guard let parentFolderId = parentFolderId else{
+            return
+        }
+        
+        dataManager.addSubFolder(parentFolderId: parentFolderId, subFolderId: UUID(), subFolderName: subFolderName, creationDate: Date()) { result in
+            
+            switch result {
+            case .success(let subFolder):
+                if let subFolder = subFolder{
+                    self.listData.append(
+                        .init(
+                            id : subFolder.id,
+                            type: .Folder,
+                            name: subFolder.name ?? defaultStr ,
+                            creationDate: subFolder.creationDate
+                        )
+                    )
+                }
+            case .failure(let failure):
+                print(failure)
+            }
+        }
     }
+    
     
     func getFolders() {
         dataManager.fetchAllFolders { result in
@@ -85,6 +118,31 @@ class FoldersListViewModel : ObservableObject {
         }
     }
     
+    //MARK: Nested folders
+
+    func getSubFolders(for folderId : UUID) {
+        dataManager.fetchSubFolders(for: folderId) { result in
+            switch result {
+            case .success(let subFolders):
+                var subFoldersList : [ListViewModel] = []
+                for folder in subFolders {
+                    subFoldersList.append(
+                        .init(
+                            id : folder.id,
+                            type: .Folder,
+                            name: folder.name ?? defaultStr,
+                            creationDate: folder.creationDate
+                        )
+                    )
+                }
+                self.foldersList = subFoldersList
+            case .failure(let failure):
+                print(failure)
+            }
+        }
+    }
+    
+    //MARK: root files
     func getFiles() {
         dataManager.fetchFilesWithoutFolder { [weak self] result in
             switch result {
@@ -98,7 +156,37 @@ class FoldersListViewModel : ObservableObject {
                                 id : file.id,
                                 type: FileType(rawValue: file.type ?? defaultStr) ?? .Image,
                                 name: file.name ?? defaultStr ,
-                                creationDate: file.creationDate, //Need to get from db
+                                creationDate: file.creationDate,
+                                image: _self.getImagePath(relativePath: file.filePath)
+                            )
+                        )
+                    }
+                    _self.foldersList.append(contentsOf: filesList)
+                    _self.listData = _self.foldersList
+                }
+                
+            case .failure(let failure):
+                print(failure)
+            }
+        }
+    }
+    
+    
+    //MARK: Files inside a folder
+    func getFiles(for folderId : UUID) {
+        dataManager.fetchFiles(for: folderId) { [weak self] result in
+            switch result {
+            case .success(let files):
+                if let _self = self{
+                    var filesList : [ListViewModel] = []
+                    
+                    for file in files{
+                        filesList.append(
+                            .init(
+                                id : file.id,
+                                type: FileType(rawValue: file.type ?? defaultStr) ?? .Image,
+                                name: file.name ?? defaultStr ,
+                                creationDate: file.creationDate,
                                 image: _self.getImagePath(relativePath: file.filePath)
                             )
                         )
@@ -128,31 +216,59 @@ class FoldersListViewModel : ObservableObject {
     
     func addFile(fileId : UUID,fileName : String,filePath : String,fileType : FileType){
         
-        dataManager.addFile(
-            fileId: fileId,
-            fileName: fileName,
-            filePath: filePath,
-            fileType: fileType.rawValue
-        ) { [weak self] result in
-            switch result {
-            case .success(let file):
-                if let file = file,let _self = self {
-                    _self.listData.append(
-                        .init(
-                            id : file.id,
-                            type: .Image,
-                            name: file.name ?? defaultStr,
-                            creationDate: file.creationDate,
-                            image: _self.getImagePath(relativePath: file.filePath)
+        if let folder = folder, let folderId = folder.id{
+            
+            dataManager.addFileToFolder(toFolderId: folderId, fileId: fileId, fileName: fileName, filePath: filePath, fileType: fileType.rawValue, completion: { [weak self] result in
+                
+                switch result {
+                case .success(let file):
+                    if let file = file,let _self = self {
+                        _self.listData.append(
+                            .init(
+                                id : file.id,
+                                type: .Image,
+                                name: file.name ?? defaultStr,
+                                creationDate: file.creationDate,
+                                image: _self.getImagePath(relativePath: file.filePath)
+                            )
                         )
-                    )
+                    }
+                case .failure(let failure):
+                    print(failure)
                 }
-            case .failure(let failure):
-                print(failure)
+
+            })
+            
+        }else{
+            
+            dataManager.addFile(
+                fileId: fileId,
+                fileName: fileName,
+                filePath: filePath,
+                fileType: fileType.rawValue
+            ) { [weak self] result in
+                switch result {
+                case .success(let file):
+                    if let file = file,let _self = self {
+                        _self.listData.append(
+                            .init(
+                                id : file.id,
+                                type: .Image,
+                                name: file.name ?? defaultStr,
+                                creationDate: file.creationDate,
+                                image: _self.getImagePath(relativePath: file.filePath)
+                            )
+                        )
+                    }
+                case .failure(let failure):
+                    print(failure)
+                }
             }
         }
     }
     
+    
+    //MARK: Utils
     func getDateStr(date : Date?) -> String{
         
         let dateStr = "Created on: "
@@ -161,5 +277,19 @@ class FoldersListViewModel : ObservableObject {
             return dateStr + Utils.formatDate(date: date)
         }
         return dateStr + defaultStr
+    }
+    
+    func isNestedFolder() -> Bool{
+        if folder != nil{
+            return true
+        }
+        return false
+    }
+    
+    func getNavBarTitle() -> String{
+        if let folder = folder{
+            return folder.name
+        }
+        return "Folderly"
     }
 }

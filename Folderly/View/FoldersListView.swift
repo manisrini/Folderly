@@ -35,7 +35,7 @@ struct FoldersListView: View {
     
     init(viewModel : FoldersListViewModel){
         self.viewModel = viewModel
-        print("folder id => \(viewModel.folderId)")
+        print("folder id => \(viewModel.folder)")
     }
 
     var body: some View {
@@ -45,7 +45,8 @@ struct FoldersListView: View {
                     ForEach(viewModel.listData,id: \.self) { item in
                         if item.type == .Folder{
                             NavigationLink{
-                                FoldersListView(viewModel: FoldersListViewModel(folderId : item.id))
+                                FoldersListView(viewModel: FoldersListViewModel(folder: item))
+                                    .toolbarRole(.editor) //remove the "back" in navbar
                             } label : {
                                 FolderCellView (
                                     name: item.name,
@@ -65,7 +66,7 @@ struct FoldersListView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("Folderly")
+                    Text(self.viewModel.getNavBarTitle())
                         .font(.title)
                 }
                 ToolbarItem {
@@ -89,7 +90,11 @@ struct FoldersListView: View {
                     textFieldStr: $textFieldStr,
                     isAddSheetPresented: $isAddFolderSheetPresented,
                     didClickAdd: {
-                        viewModel.addFolder(folderName: textFieldStr)
+                        if let _folder = viewModel.folder{
+                            viewModel.addSubFolder(subFolderName: textFieldStr, parentFolderId: _folder.id)
+                        }else{
+                            viewModel.addFolder(folderName: textFieldStr)
+                        }
                         textFieldStr.removeAll()
                     }
                 )
@@ -161,7 +166,7 @@ struct FoldersListView: View {
             if let directoryLocation = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).last {
                 print("Core Data Path : Documents Directory: \(directoryLocation) Application Support")
             }
-            viewModel.getFoldersAndFiles()
+            viewModel.getListData()
         }
     }
 
