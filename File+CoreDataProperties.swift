@@ -2,7 +2,7 @@
 //  File+CoreDataProperties.swift
 //  Folderly
 //
-//  Created by Manikandan on 14/01/25.
+//  Created by Manikandan on 16/01/25.
 //
 //
 
@@ -20,6 +20,7 @@ extension File {
     @NSManaged public var id: UUID?
     @NSManaged public var name: String?
     @NSManaged public var type: String?
+    @NSManaged public var creationDate: Date?
     @NSManaged public var folder: Folder?
 
 }

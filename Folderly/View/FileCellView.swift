@@ -15,33 +15,33 @@ enum FileType : String {
 }
 
 
-struct ListCellView: View {
+struct FileCellView: View {
     
-    let type : FileType = .Image
-    let imageUrl : URL? = nil
+    let image : UIImage?
     let name : String
     let createdTime : String
-    let didTapMenu : (()->())?
+    let didTapMenu : (()->())? = nil
     
     
     var body: some View {
         HStack(spacing : 20){
-            
-            if type == .Folder{
-                Image(systemName: "folder.fill")
+            if let _image = self.image{
+                Image(uiImage: _image)
                     .resizable()
-                    .frame(width: 25,height: 25)
-            } else if type == .Image{
-                if let url = self.imageUrl{
-                    Image(systemName: "image.fill")
-                        .resizable()
-                        .frame(width: 25,height: 25)
-                }
+                    .frame(width: 40,height: 40)
+                    .clipShape(Circle())
+            }else{
+                Image(systemName: "photo")
+                    .resizable()
+                    .foregroundStyle(.gray)
+                    .frame(width: 30,height: 30)
             }
             
             VStack(alignment: .leading){
                 Text(name)
+                    .lineLimit(1)
                 Text(createdTime)
+                    .foregroundStyle(Color.black)
             }
             
             Spacer()
@@ -57,7 +57,5 @@ struct ListCellView: View {
 }
 
 #Preview {
-    ListCellView(name: "Resume.pdf", createdTime: "Created on 12/12/2-24", didTapMenu: {
-        
-    })
+    FileCellView(image: nil, name: "Resume-dfsdf-sdf-sdfsdf-sdfsdfsdfsdf", createdTime: "Created on 12/12/2-24")
 }

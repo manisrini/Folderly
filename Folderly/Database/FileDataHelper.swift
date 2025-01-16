@@ -154,16 +154,14 @@ class FileDataHelper {
         completion: @escaping (Result<File?, Error>) -> Void
     ) {
         let managedContext = dbManager.persistentContainer.viewContext
-        
-        // Fetch the target folder
-        let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
-        
+                
         if let entity = NSEntityDescription.entity(forEntityName: Entity.File.rawValue, in: managedContext) {
             if let newFile = NSManagedObject(entity: entity, insertInto: managedContext) as? File {
                 newFile.id = fileId
                 newFile.name = fileName
                 newFile.filePath = filePath
                 newFile.type = fileType
+                newFile.creationDate = Date()
                 
                 dbManager.saveContext(managedObjectContext: managedContext) { result in
                     switch result {
@@ -192,6 +190,20 @@ class FileDataHelper {
             completion(.failure(error))
         }
     }
+    
+    
+    func fetchFilesWithoutFolder(completion: @escaping (Result<[File], Error>) -> Void) {
+        let managedContext = dbManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<File> = File.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "folder == nil")
+        do {
+            let files = try managedContext.fetch(fetchRequest)
+            completion(.success(files))
+        } catch {
+            completion(.failure(error))
+        }
+    }
+
 
     
 }

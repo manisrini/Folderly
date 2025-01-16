@@ -12,7 +12,7 @@ import CoreData
 struct ContentView: View {
     
     var body: some View {
-        FoldersListView()
+        FoldersListView(viewModel: FoldersListViewModel())
     }
 }
 

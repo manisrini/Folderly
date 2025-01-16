@@ -9,6 +9,9 @@ import SwiftUI
 
 struct FoldersListView: View {
     
+    
+    var parentFolderId : UUID? = nil
+    
     @State private var isOptionsSheetPresented = false
     @State private var isAddFolderSheetPresented = false
     @State private var isAttachmentSheetPresented = false
@@ -20,33 +23,43 @@ struct FoldersListView: View {
     
     
     @State private var isImagePickerPresented = false
-    @State private var filePath: URL?
+    @State private var filePath: String = ""
     @State private var fileId: UUID?
     @State private var fileName: String = ""
     @State private var showCamera = false
     @State private var showPhotoLibrary = false
 
-
     @State private var textFieldStr : String = ""
     
-    @ObservedObject var viewModel = FoldersListViewModel()
+    @ObservedObject var viewModel : FoldersListViewModel
+    
+    init(viewModel : FoldersListViewModel){
+        self.viewModel = viewModel
+        print("folder id => \(viewModel.folderId)")
+    }
 
     var body: some View {
         NavigationStack {
-            ScrollView(){
-                VStack(alignment : .leading){
-                    ForEach(viewModel.listData,id: \.self){ item in
-                        NavigationLink {
-                            FoldersListView()
-                        } label: {
-                            ListCellView(
+            ScrollView {
+                VStack {
+                    ForEach(viewModel.listData,id: \.self) { item in
+                        if item.type == .Folder{
+                            NavigationLink{
+                                FoldersListView(viewModel: FoldersListViewModel(folderId : item.id))
+                            } label : {
+                                FolderCellView (
+                                    name: item.name,
+                                    createdTime: viewModel.getDateStr(date: item.creationDate)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }else{
+                            FileCellView(
+                                image: item.image,
                                 name: item.name,
-                                createdTime: viewModel.getDateStr(date: item.creationDate),
-                                didTapMenu: {
-                                print("tapped")
-                            })
+                                createdTime: viewModel.getDateStr(date: item.creationDate)
+                            )
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -62,7 +75,6 @@ struct FoldersListView: View {
                         Image(systemName: "plus")
                     }
                 }
-                
             }
             .sheet(isPresented: $isOptionsSheetPresented) {
                 BottomSheetComponent(
@@ -108,6 +120,7 @@ struct FoldersListView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             }
+            .buttonStyle(.plain)
             .sheet(isPresented: $showCamera) {
                 ImagePicker(
                     sourceType: .camera,
@@ -136,17 +149,24 @@ struct FoldersListView: View {
                     fileType: .Image
                 )
             }
+            
+            if viewModel.listData.isEmpty{
+                VStack{
+                    Text("No data found")
+                    Spacer()
+                }
+            }
         }
         .onAppear{
             if let directoryLocation = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).last {
-                        print("Core Data Path : Documents Directory: \(directoryLocation)Application Support")
-             }
-            viewModel.getFolders()
+                print("Core Data Path : Documents Directory: \(directoryLocation) Application Support")
+            }
+            viewModel.getFoldersAndFiles()
         }
     }
 
 }
 
 #Preview {
-    FoldersListView()
+    FoldersListView(viewModel: FoldersListViewModel())
 }

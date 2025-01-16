@@ -10,7 +10,7 @@ import SwiftUI
 struct ImagePicker: UIViewControllerRepresentable {
     var sourceType: UIImagePickerController.SourceType
     @Binding var isImagePickerPresented: Bool
-    @Binding var filePath: URL?
+    @Binding var filePath: String
     @Binding var fileId: UUID?
     @Binding var fileName: String
 
@@ -31,11 +31,12 @@ struct ImagePicker: UIViewControllerRepresentable {
                         if let fileId = parent.fileId{
                             parent.fileName = "\(fileId).jpg"
                         }
-                        let fileUrl = documentsDir.appendingPathComponent(parent.fileName)
+                        let relativePath = parent.fileName
+                        let fileUrl = documentsDir.appendingPathComponent(relativePath)
                         
                         do{
                             try imageData.write(to: fileUrl)
-                            parent.filePath = fileUrl
+                            parent.filePath = relativePath
                         }catch {
                             print("Error saving image: \(error.localizedDescription)")
                         }
