@@ -15,11 +15,6 @@ struct FoldersListView: View {
     @State private var isOptionsSheetPresented = false
     @State private var isAddFolderSheetPresented = false
     @State private var isAttachmentSheetPresented = false
-
-    var isSaveLocal: Bool = true
-    var isVideoEnabled: Bool = true
-    var isPhotosEnabled: Bool = true
-    var isFileEnabled: Bool = true
     
     
     @State private var isImagePickerPresented = false
@@ -28,7 +23,7 @@ struct FoldersListView: View {
     @State private var fileName: String = ""
     @State private var showCamera = false
     @State private var showPhotoLibrary = false
-
+    
     @State private var textFieldStr : String = ""
     
     @ObservedObject var viewModel : FoldersListViewModel
@@ -37,7 +32,7 @@ struct FoldersListView: View {
         self.viewModel = viewModel
         print("folder id => \(viewModel.folder)")
     }
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -104,25 +99,11 @@ struct FoldersListView: View {
             .confirmationDialog("Choose an Option", isPresented: $isAttachmentSheetPresented) {
                 
                 Button {
-                    showCamera = true
+                    showPhotoLibrary = true
                 } label: {
-                    Text("Camera")
+                    Text("Photos Library")
                 }
                 
-                if isPhotosEnabled {
-                    Button {
-                        showPhotoLibrary = true
-                    } label: {
-                        Text("Photos Library")
-                    }
-                }
-                
-                if isFileEnabled {
-                    Button {
-                    } label: {
-                        Text("File Library")
-                    }
-                }
                 Button("Cancel", role: .cancel) {}
             }
             .buttonStyle(.plain)
@@ -169,7 +150,7 @@ struct FoldersListView: View {
             viewModel.getListData()
         }
     }
-
+    
 }
 
 #Preview {
