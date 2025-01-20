@@ -29,11 +29,11 @@ struct FolderCellView: View {
             
             Spacer()
             
-            Button {
-                self.didTapMenu?()
-            } label: {
-                Image(systemName: "ellipsis")
-            }
+            Image(systemName: "chevron.right")
+                .resizable()
+                .frame(width: 10,height: 15)
+                .padding(.trailing,5)
+
         }
         .padding()
     }

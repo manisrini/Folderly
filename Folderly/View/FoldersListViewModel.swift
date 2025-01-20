@@ -46,7 +46,7 @@ class FoldersListViewModel : ObservableObject {
             self.getFiles()
         }
     }
-
+    
     
     func addFolder(folderName : String) {
         dataManager.addFolder(id: UUID(), name: folderName, creationDate: Date()) { result in
@@ -119,7 +119,7 @@ class FoldersListViewModel : ObservableObject {
     }
     
     //MARK: Nested folders
-
+    
     func getSubFolders(for folderId : UUID) {
         dataManager.fetchSubFolders(for: folderId) { result in
             switch result {
@@ -236,7 +236,7 @@ class FoldersListViewModel : ObservableObject {
                 case .failure(let failure):
                     print(failure)
                 }
-
+                
             })
             
         }else{
@@ -292,4 +292,11 @@ class FoldersListViewModel : ObservableObject {
         }
         return "Folderly"
     }
+//
+//    func getFolder(by id: UUID) -> ListViewModel? {
+//        foldersList.first { $0.id == id }
+//    }
+//
+//
+    
 }

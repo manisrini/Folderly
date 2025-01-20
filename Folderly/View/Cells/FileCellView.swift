@@ -43,14 +43,7 @@ struct FileCellView: View {
                 Text(createdTime)
                     .foregroundStyle(Color.black)
             }
-            
-            Spacer()
-            
-            Button {
-                self.didTapMenu?()
-            } label: {
-                Image(systemName: "ellipsis")
-            }
+                        
         }
         .padding()
     }

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct FoldersListView: View {
     
-    
     var parentFolderId : UUID? = nil
     
     @State private var isOptionsSheetPresented = false
@@ -27,49 +26,55 @@ struct FoldersListView: View {
     @State private var textFieldStr : String = ""
     
     @ObservedObject var viewModel : FoldersListViewModel
-    
+    @State private var doPresentView: Bool = false
+    @State private var selectedFolder: ListViewModel?
+    private let viewTag: String
+
     init(viewModel : FoldersListViewModel){
         self.viewModel = viewModel
-        print("folder id => \(viewModel.folder)")
+        self.viewTag = UUID().uuidString
     }
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack {
-                    ForEach(viewModel.listData,id: \.self) { item in
-                        if item.type == .Folder{
-                            NavigationLink{
-                                FoldersListView(viewModel: FoldersListViewModel(folder: item))
-                                    .toolbarRole(.editor) //remove the "back" in navbar
-                            } label : {
-                                FolderCellView (
-                                    name: item.name,
-                                    createdTime: viewModel.getDateStr(date: item.creationDate)
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }else{
-                            FileCellView(
-                                image: item.image,
-                                name: item.name,
-                                createdTime: viewModel.getDateStr(date: item.creationDate)
-                            )
-                        }
+            CollectionViewRepresentable(
+                items: $viewModel.listData,
+                onFolderTapped: { folder in
+                    if !doPresentView {
+                        selectedFolder = folder
+                        doPresentView = true
                     }
                 }
+            )
+            .navigationDestination(isPresented: $doPresentView){
+                if let folder = selectedFolder, folder.id?.uuidString != viewTag{
+                    FoldersListView(viewModel: FoldersListViewModel(folder: folder))
+                        .tag(folder.id?.uuidString)
+                }
             }
+//            .onChange(of: selectedFolder) { old,newFolder in
+//                print("Selected Folder: \(String(describing: newFolder?.name ))\n")
+//            }
+//            .onChange(of: doPresentView) { old,newValue in
+//                print("Navigation Triggered: \(newValue)")
+//            }
+            .toolbarRole(.editor)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Text(self.viewModel.getNavBarTitle())
                         .font(.title)
                 }
-                ToolbarItem {
+                ToolbarItemGroup{
+
+                    SortMenuView(items: $viewModel.listData)
+                    
                     Button {
                         isOptionsSheetPresented.toggle()
                     } label: {
                         Image(systemName: "plus")
+                            .foregroundStyle(.blue)
                     }
+
                 }
             }
             .sheet(isPresented: $isOptionsSheetPresented) {
@@ -135,13 +140,6 @@ struct FoldersListView: View {
                     fileType: .Image
                 )
             }
-            
-            if viewModel.listData.isEmpty{
-                VStack{
-                    Text("No data found")
-                    Spacer()
-                }
-            }
         }
         .onAppear{
             if let directoryLocation = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).last {
@@ -150,7 +148,6 @@ struct FoldersListView: View {
             viewModel.getListData()
         }
     }
-    
 }
 
 #Preview {
