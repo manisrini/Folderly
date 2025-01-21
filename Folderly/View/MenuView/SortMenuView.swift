@@ -12,15 +12,15 @@ struct SortMenuView : View {
         
     var body : some View{
         Menu {
-            Button(action: {
+            Button{
                 self.sortByName()
-            }) {
+            } label: {
                 Label("Name", systemImage: "textformat")
             }
             
-            Button(action: {
+            Button{
                 self.sortByDate()
-            }) {
+            }label: {
                 Label("Date", systemImage: "calendar")
             }
         } label: {

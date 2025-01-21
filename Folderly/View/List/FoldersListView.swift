@@ -27,8 +27,13 @@ struct FoldersListView: View {
     
     @ObservedObject var viewModel : FoldersListViewModel
     @State private var doPresentView: Bool = false
+    
     @State private var selectedFolder: ListViewModel?
+
     private let viewTag: String
+    
+    @State private var showMenu = false
+    @State private var longPressedItemIndexPath: IndexPath = IndexPath(row: 0, section: 0)
 
     init(viewModel : FoldersListViewModel){
         self.viewModel = viewModel
@@ -44,6 +49,16 @@ struct FoldersListView: View {
                         selectedFolder = folder
                         doPresentView = true
                     }
+                },
+                onLongPress: { indexPath in
+                    print(indexPath)
+                    if indexPath.row < viewModel.listData.count {
+                        DispatchQueue.main.async {
+                            showMenu = true
+                            longPressedItemIndexPath = indexPath
+
+                        }
+                    }
                 }
             )
             .navigationDestination(isPresented: $doPresentView){
@@ -52,12 +67,6 @@ struct FoldersListView: View {
                         .tag(folder.id?.uuidString)
                 }
             }
-//            .onChange(of: selectedFolder) { old,newFolder in
-//                print("Selected Folder: \(String(describing: newFolder?.name ))\n")
-//            }
-//            .onChange(of: doPresentView) { old,newValue in
-//                print("Navigation Triggered: \(newValue)")
-//            }
             .toolbarRole(.editor)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -111,16 +120,27 @@ struct FoldersListView: View {
                 
                 Button("Cancel", role: .cancel) {}
             }
-            .buttonStyle(.plain)
-            .sheet(isPresented: $showCamera) {
-                ImagePicker(
-                    sourceType: .camera,
-                    isImagePickerPresented: $showCamera,
-                    filePath: $filePath,
-                    fileId: $fileId,
-                    fileName: $fileName
-                )
+            .sheet(isPresented: $showMenu){
+                let _ = print(showMenu)
+                let _ = print(longPressedItemIndexPath)
+
+                LongPressOptionsView(item: self.viewModel.listData[longPressedItemIndexPath.row]) {
+                    self.viewModel.updateFavourite(for: longPressedItemIndexPath)
+                    showMenu = false
+                }
+                .presentationDetents([.height(100)])
             }
+
+            .buttonStyle(.plain)
+//            .sheet(isPresented: $showCamera) {
+//                ImagePicker(
+//                    sourceType: .camera,
+//                    isImagePickerPresented: $showCamera,
+//                    filePath: $filePath,
+//                    fileId: $fileId,
+//                    fileName: $fileName
+//                )
+//            }
             .sheet(isPresented: $showPhotoLibrary) {
                 ImagePicker(
                     sourceType: .photoLibrary,
@@ -146,7 +166,7 @@ struct FoldersListView: View {
                 print("Core Data Path : Documents Directory: \(directoryLocation) Application Support")
             }
             viewModel.getListData()
-        }
+        }        
     }
 }
 

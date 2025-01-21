@@ -11,6 +11,7 @@ struct CollectionViewRepresentable : UIViewRepresentable{
 
     @Binding var items: [ListViewModel]
     var onFolderTapped: (ListViewModel) -> Void
+    var onLongPress: (IndexPath) -> Void
 
     func makeUIView(context: Context) -> UICollectionView {
         let layout = self.createCompositionalLayout()
@@ -19,6 +20,13 @@ struct CollectionViewRepresentable : UIViewRepresentable{
                                 forCellWithReuseIdentifier: FolderCellCollectionViewCell.nibName)
         collectionView.delegate = context.coordinator
         collectionView.dataSource = context.coordinator
+        
+        context.coordinator.setCollectionView(collectionView)
+        
+        let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleLongPress))
+        longPressGesture.minimumPressDuration = 0.5
+        collectionView.addGestureRecognizer(longPressGesture)
+
         return collectionView
     }
     
@@ -36,8 +44,8 @@ struct CollectionViewRepresentable : UIViewRepresentable{
     func createCompositionalLayout() -> UICollectionViewCompositionalLayout{
         
         let groupSectionItem = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-        groupSectionItem.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 12, bottom: 20, trailing: 0)
-        let sectionGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9), heightDimension: .estimated(100)), subitems: [groupSectionItem])
+        groupSectionItem.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
+        let sectionGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [groupSectionItem])
         let section = NSCollectionLayoutSection(group: sectionGroup)
         
 
@@ -54,25 +62,49 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
     
     var parent : CollectionViewRepresentable
     private var items: [ListViewModel] = []
-
+    private weak var collectionView : UICollectionView?
     
     init(_ parent : CollectionViewRepresentable){
         self.parent = parent
     }
     
+    func setCollectionView(_ collectionView: UICollectionView) {
+        self.collectionView = collectionView
+    }
+    
     func shouldUpdate(with newItems: [ListViewModel]) -> Bool {
          
-         // Check if data actually changed
          guard items.count != newItems.count || !items.elementsEqual(newItems, by: { old, new in
-             return old.id == new.id 
+             return old.id == new.id  && old.isFavourite == new.isFavourite
          }) else {
              return false
          }
          return true
      }
+    
     func updateData(_ items: [ListViewModel]) {
         self.items = items
     }
+    
+    @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+           guard gesture.state == .began,
+                 let collectionView = collectionView else { return }
+           
+           let point = gesture.location(in: collectionView)
+           
+           if let indexPath = collectionView.indexPathForItem(at: point) {
+               let item = items[indexPath.row]
+               
+               // Provide haptic feedback
+               let generator = UIImpactFeedbackGenerator(style: .medium)
+               generator.impactOccurred()
+               
+               if item.type == .Folder{
+                   parent.onLongPress(indexPath)
+               }
+           }
+    }
+    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return items.count
@@ -80,8 +112,7 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FolderCellCollectionViewCell.nibName, for: indexPath) as? FolderCellCollectionViewCell{
-            cell.backgroundColor = .green
-                        
+
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
 
             let item = items[indexPath.row]
@@ -92,7 +123,8 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
                 let folderHostingView = UIHostingController(
                     rootView: FolderCellView(
                         name: name,
-                        createdTime: createdDate
+                        createdTime: createdDate,
+                        isFavourite: item.isFavourite
                     )
                 )
                 cell.contentView.addSubview(folderHostingView.view)
@@ -101,7 +133,7 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
                     make.left.equalTo(cell.contentView)
                     make.top.equalTo(cell.contentView)
                     make.bottom.equalTo(cell.contentView)
-                    make.right.equalTo(cell.contentView).offset(20)
+                    make.right.equalTo(cell.contentView)
                 }
             
             }else{
@@ -132,7 +164,7 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = items[indexPath.row]
         if item.type == .Folder {
-            parent.onFolderTapped(item)  // Trigger the navigation action
+            parent.onFolderTapped(item) 
         }
     }
 

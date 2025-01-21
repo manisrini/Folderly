@@ -15,13 +15,15 @@ struct ListViewModel : Hashable {
     let name : String
     let creationDate : Date?
     let image : UIImage?
+    let isFavourite : Bool
     
-    init(id : UUID?,type: FileType, name: String, creationDate: Date?, image: UIImage? = nil) {
+    init(id : UUID?,type: FileType, name: String, creationDate: Date?, image: UIImage? = nil,isFavourite : Bool) {
         self.id = id
         self.type = type
         self.name = name
         self.creationDate = creationDate
         self.image = image
+        self.isFavourite = isFavourite
     }
 }
 
@@ -58,7 +60,8 @@ class FoldersListViewModel : ObservableObject {
                             id : folder.id,
                             type: .Folder,
                             name: folder.name ?? defaultStr ,
-                            creationDate: folder.creationDate
+                            creationDate: folder.creationDate,
+                            isFavourite: folder.isFavourite
                         )
                     )
                 }
@@ -85,7 +88,8 @@ class FoldersListViewModel : ObservableObject {
                             id : subFolder.id,
                             type: .Folder,
                             name: subFolder.name ?? defaultStr ,
-                            creationDate: subFolder.creationDate
+                            creationDate: subFolder.creationDate,
+                            isFavourite: subFolder.isFavourite
                         )
                     )
                 }
@@ -107,7 +111,8 @@ class FoldersListViewModel : ObservableObject {
                             id : folder.id,
                             type: .Folder,
                             name: folder.name ?? defaultStr,
-                            creationDate: folder.creationDate
+                            creationDate: folder.creationDate,
+                            isFavourite: folder.isFavourite
                         )
                     )
                 }
@@ -131,7 +136,8 @@ class FoldersListViewModel : ObservableObject {
                             id : folder.id,
                             type: .Folder,
                             name: folder.name ?? defaultStr,
-                            creationDate: folder.creationDate
+                            creationDate: folder.creationDate,
+                            isFavourite: folder.isFavourite
                         )
                     )
                 }
@@ -157,7 +163,8 @@ class FoldersListViewModel : ObservableObject {
                                 type: FileType(rawValue: file.type ?? defaultStr) ?? .Image,
                                 name: file.name ?? defaultStr ,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath)
+                                image: _self.getImagePath(relativePath: file.filePath),
+                                isFavourite: false
                             )
                         )
                     }
@@ -187,7 +194,8 @@ class FoldersListViewModel : ObservableObject {
                                 type: FileType(rawValue: file.type ?? defaultStr) ?? .Image,
                                 name: file.name ?? defaultStr ,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath)
+                                image: _self.getImagePath(relativePath: file.filePath),
+                                isFavourite: false
                             )
                         )
                     }
@@ -229,7 +237,8 @@ class FoldersListViewModel : ObservableObject {
                                 type: .Image,
                                 name: file.name ?? defaultStr,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath)
+                                image: _self.getImagePath(relativePath: file.filePath),
+                                isFavourite: false
                             )
                         )
                     }
@@ -256,7 +265,8 @@ class FoldersListViewModel : ObservableObject {
                                 type: .Image,
                                 name: file.name ?? defaultStr,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath)
+                                image: _self.getImagePath(relativePath: file.filePath),
+                                isFavourite: false
                             )
                         )
                     }
@@ -267,6 +277,33 @@ class FoldersListViewModel : ObservableObject {
         }
     }
     
+    func updateFavourite(for folderIndexPath : IndexPath){
+        
+        let folder = self.listData[folderIndexPath.row]
+        
+        guard let id = folder.id else{
+            return
+        }
+        let isFavourite = !folder.isFavourite
+        
+        dataManager.markFolderAsFavorite(folderId: id, isFavorite: isFavourite) { result in
+            switch result {
+            case .success(let folder):
+                if let folder = folder{
+                    self.listData[folderIndexPath.row] = .init(
+                        id: folder.id,
+                        type: .Folder,
+                        name: folder.name ?? defaultStr,
+                        creationDate: folder.creationDate,
+                        isFavourite: folder.isFavourite
+                    )
+                }
+                print("Marked as favorite: \(folder?.name ?? "")")
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+        }
+    }
     
     //MARK: Utils
     func getDateStr(date : Date?) -> String{
@@ -292,11 +329,5 @@ class FoldersListViewModel : ObservableObject {
         }
         return "Folderly"
     }
-//
-//    func getFolder(by id: UUID) -> ListViewModel? {
-//        foldersList.first { $0.id == id }
-//    }
-//
-//
     
 }

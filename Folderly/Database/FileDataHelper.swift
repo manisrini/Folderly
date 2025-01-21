@@ -233,5 +233,38 @@ class FileDataHelper {
             completion(.failure(error))
         }
     }
+    
+    func markFolderAsFavorite(
+        folderId: UUID,
+        isFavorite: Bool,
+        completion: @escaping (Result<Folder?, Error>) -> Void
+    ) {
+        let managedContext = dbManager.persistentContainer.viewContext
+        
+        let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", folderId as CVarArg)
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            
+            if let folder = results.first {
+                folder.isFavourite = isFavorite 
+                
+                dbManager.saveContext(managedObjectContext: managedContext) { result in
+                    switch result {
+                    case .success(_):
+                        completion(.success(folder))
+                    default:
+                        completion(.failure(NSError(domain: "CoreDataError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unable to save"])))
+                    }
+                }
+            } else {
+                completion(.failure(NSError(domain: "CoreDataError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Folder not found"])))
+            }
+        } catch let error {
+            completion(.failure(error))
+        }
+    }
+
 
 }

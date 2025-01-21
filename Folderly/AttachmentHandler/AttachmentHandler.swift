@@ -44,7 +44,7 @@ class AttachmentHandler : NSObject {
         self.isSaveLocal = isSaveLocal
         self.isVideoEnabled = isVideoEnabled
         
-        var actionSheet = UIAlertController(title: AttachmentHandlerConstants.actionFileTypeHeading, message: AttachmentHandlerConstants.actionFileTypeDescription, preferredStyle: UIAlertController.Style.actionSheet)
+        let actionSheet = UIAlertController(title: AttachmentHandlerConstants.actionFileTypeHeading, message: AttachmentHandlerConstants.actionFileTypeDescription, preferredStyle: UIAlertController.Style.actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: AttachmentHandlerConstants.camera, style: .default, handler: { (action) -> Void in
             self.authorisationStatus(attachmentTypeEnum: .camera)
