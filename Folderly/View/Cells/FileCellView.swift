@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DSM
 
 enum FileType : String {
     case Folder
@@ -38,10 +39,8 @@ struct FileCellView: View {
             }
             
             VStack(alignment: .leading){
-                Text(name)
-                    .lineLimit(1)
-                Text(createdTime)
-                    .foregroundStyle(Color.black)
+                RobotoText(name: name,style: .Medium,size: 18)
+                RobotoText(name: createdTime,style: .Regular,size: 16)
             }
                         
         }

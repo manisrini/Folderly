@@ -20,6 +20,7 @@ struct CollectionViewRepresentable : UIViewRepresentable{
                                 forCellWithReuseIdentifier: FolderCellCollectionViewCell.nibName)
         collectionView.delegate = context.coordinator
         collectionView.dataSource = context.coordinator
+        collectionView.backgroundColor = Utils.hexStringToUIColor(hex: "CACACA")
         
         context.coordinator.setCollectionView(collectionView)
         
@@ -44,7 +45,7 @@ struct CollectionViewRepresentable : UIViewRepresentable{
     func createCompositionalLayout() -> UICollectionViewCompositionalLayout{
         
         let groupSectionItem = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-        groupSectionItem.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
+        groupSectionItem.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         let sectionGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [groupSectionItem])
         let section = NSCollectionLayoutSection(group: sectionGroup)
         
@@ -94,11 +95,6 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
            
            if let indexPath = collectionView.indexPathForItem(at: point) {
                let item = items[indexPath.row]
-               
-               // Provide haptic feedback
-               let generator = UIImpactFeedbackGenerator(style: .medium)
-               generator.impactOccurred()
-               
                if item.type == .Folder{
                    parent.onLongPress(indexPath)
                }
@@ -114,7 +110,6 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FolderCellCollectionViewCell.nibName, for: indexPath) as? FolderCellCollectionViewCell{
 
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-
             let item = items[indexPath.row]
             let name = item.name
             let createdDate = Utils.formatDate(date: item.creationDate ?? Date())

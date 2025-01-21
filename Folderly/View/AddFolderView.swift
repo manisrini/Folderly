@@ -6,38 +6,41 @@
 //
 
 import SwiftUI
+import DSM
 
 struct AddFolderView: View {
     
     @Binding var textFieldStr : String
     @Binding var isAddSheetPresented : Bool
+    @FocusState private var isTextFieldFocused: Bool
     var didClickAdd : (()->())?
+    
 
     var body: some View {
-        VStack(alignment : .leading,spacing: 10){
+        VStack(alignment : .leading,spacing: 15){
             Text("New Folder")
                 .font(.headline)
             
             TextField("Name", text: $textFieldStr)
+                .textFieldStyle(.roundedBorder)
+                .focused($isTextFieldFocused)
             
             HStack{
-                Button {
+                FButton(name: "Cancel") {
                     isAddSheetPresented = false
-                } label: {
-                    Group{
-                        Text("Cancel")
-                    }
                 }
                 
-                Button {
+                FButton(name: "Create") {
                     isAddSheetPresented = false
                     self.didClickAdd?()
-                } label: {
-                    Text("Create")
                 }
             }
         }
-        .padding()
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isTextFieldFocused = true
+            }
+        }
     }
 }
 

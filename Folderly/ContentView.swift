@@ -7,12 +7,15 @@
 
 import SwiftUI
 import CoreData
-
+import DSM
 
 struct ContentView: View {
     
     var body: some View {
         FoldersListView(viewModel: FoldersListViewModel())
+            .onAppear{
+                FontHelper.registerFonts()
+            }
     }
 }
 

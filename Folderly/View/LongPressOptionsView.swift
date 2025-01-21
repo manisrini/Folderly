@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DSM
 
 struct LongPressOptionsView: View {
     
@@ -13,19 +14,11 @@ struct LongPressOptionsView: View {
     var onTapAddToFav : () -> Void
     
     var body: some View {
-        Button {
-            self.onTapAddToFav()
-        } label: {
-            Text(item?.isFavourite ?? false ? "Remove from Favorites" : "Add to Favorites")
-                .foregroundStyle(.white)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.blue)
-                )
-        }
-        .fixedSize()
+        
+        FButton(
+            name: item?.isFavourite ?? false ? "Remove from Favorites" : "Add to Favorites") {
+                self.onTapAddToFav()
+            }
     }
 }
 

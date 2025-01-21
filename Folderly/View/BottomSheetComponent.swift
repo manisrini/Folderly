@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DSM
 
 struct BottomSheetComponent: View {
     
@@ -16,21 +17,18 @@ struct BottomSheetComponent: View {
 
     var body: some View {
         HStack{
-            VStack(spacing : 15) {
-                Button("Add Folder") {
-                    print("ksdjbnfkj")
+            HStack(spacing : 15) {
+                FButton(name: "Add Folder") {
                     showOptionsSheet = false
                     showAddSheet = true
                 }
                 
-                Button("Add Image") {
-                    print("showksdjfgbk")
+                
+                FButton(name: "Add Image") {
                     showOptionsSheet = false
                     showAttachmentSheet = true
                     self.didTapAddAttachment?()
                 }
-                
-                Spacer()
             }
             .padding(.vertical,10)
             

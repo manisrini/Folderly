@@ -5,6 +5,7 @@
 //  Created by Manikandan on 16/01/25.
 //
 import SwiftUI
+import DSM
 
 struct FolderCellView: View {
     
@@ -25,11 +26,9 @@ struct FolderCellView: View {
                         .resizable()
                         .frame(width: 25,height: 25)
                     
-                    VStack(alignment: .leading){
-                        Text(name)
-                            .lineLimit(1)
-                        Text(createdTime)
-                            .foregroundStyle(Color.black)
+                    VStack(alignment: .leading,spacing : 4){
+                        RobotoText(name: name,style: .Medium,size: 18)
+                        RobotoText(name: createdTime,style: .Regular,size: 16)
                     }
                     
                     Spacer()

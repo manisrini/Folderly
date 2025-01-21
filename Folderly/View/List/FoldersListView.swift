@@ -25,19 +25,16 @@ struct FoldersListView: View {
     
     @State private var textFieldStr : String = ""
     
-    @ObservedObject var viewModel : FoldersListViewModel
+    @StateObject var viewModel : FoldersListViewModel
     @State private var doPresentView: Bool = false
-    
     @State private var selectedFolder: ListViewModel?
-
-    private let viewTag: String
     
     @State private var showMenu = false
     @State private var longPressedItemIndexPath: IndexPath = IndexPath(row: 0, section: 0)
 
     init(viewModel : FoldersListViewModel){
-        self.viewModel = viewModel
-        self.viewTag = UUID().uuidString
+        print("init foldersListView \(viewModel)\n")
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
@@ -46,8 +43,10 @@ struct FoldersListView: View {
                 items: $viewModel.listData,
                 onFolderTapped: { folder in
                     if !doPresentView {
+                        print("selectedFolder => \(selectedFolder) doPresentView =< \(doPresentView) \n")
                         selectedFolder = folder
                         doPresentView = true
+                        print("selectedFolder => \(selectedFolder) doPresentView =< \(doPresentView) \n")
                     }
                 },
                 onLongPress: { indexPath in
@@ -62,10 +61,10 @@ struct FoldersListView: View {
                 }
             )
             .navigationDestination(isPresented: $doPresentView){
-                if let folder = selectedFolder, folder.id?.uuidString != viewTag{
-                    FoldersListView(viewModel: FoldersListViewModel(folder: folder))
-                        .tag(folder.id?.uuidString)
-                }
+                let _ = print("inside navigationDestination doPresentView =< \(doPresentView)\n")
+                let _ = print("inside navigationDestination selectedFolder =< \(selectedFolder)\n")
+                let folder = selectedFolder
+                FoldersListView(viewModel: FoldersListViewModel(folder: folder))
             }
             .toolbarRole(.editor)
             .toolbar {
@@ -76,7 +75,7 @@ struct FoldersListView: View {
                 ToolbarItemGroup{
 
                     SortMenuView(items: $viewModel.listData)
-                    
+                        
                     Button {
                         isOptionsSheetPresented.toggle()
                     } label: {
@@ -92,7 +91,7 @@ struct FoldersListView: View {
                     showOptionsSheet: $isOptionsSheetPresented,
                     showAttachmentSheet: $isAttachmentSheetPresented
                 )
-                .presentationDetents([.height(200)])
+                .presentationDetents([.height(100)])
             }
             .sheet(isPresented: $isAddFolderSheetPresented) {
                 AddFolderView(

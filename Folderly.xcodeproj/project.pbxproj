@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2A4D81AA2D3663E400B20E17 /* Folder+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4D81A72D3663E400B20E17 /* Folder+CoreDataProperties.swift */; };
 		2A4D81AB2D3663E400B20E17 /* Folder+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4D81A62D3663E400B20E17 /* Folder+CoreDataClass.swift */; };
+		2A5EC2372D400AF70056399F /* DSM in Frameworks */ = {isa = PBXBuildFile; productRef = 2A5EC2362D400AF70056399F /* DSM */; };
 		2A9FFD3F2D3BC45500AF1FDA /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2A9FFD3E2D3BC45500AF1FDA /* SnapKit */; };
 		2AB54D332D394C6B00381AF5 /* File+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB54D322D394C6B00381AF5 /* File+CoreDataProperties.swift */; };
 		2AB54D342D394C6B00381AF5 /* File+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB54D312D394C6B00381AF5 /* File+CoreDataClass.swift */; };
@@ -17,6 +18,7 @@
 /* Begin PBXFileReference section */
 		2A4D81A62D3663E400B20E17 /* Folder+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataClass.swift"; sourceTree = "<group>"; };
 		2A4D81A72D3663E400B20E17 /* Folder+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		2A5EC1F82D4007E10056399F /* DSM */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = DSM; sourceTree = "<group>"; };
 		2AB54D312D394C6B00381AF5 /* File+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "File+CoreDataClass.swift"; sourceTree = "<group>"; };
 		2AB54D322D394C6B00381AF5 /* File+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "File+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		2AE973282D303DBB0096F40E /* Folderly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folderly.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -49,6 +51,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A9FFD3F2D3BC45500AF1FDA /* SnapKit in Frameworks */,
+				2A5EC2372D400AF70056399F /* DSM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +68,7 @@
 		2AE9731F2D303DBB0096F40E = {
 			isa = PBXGroup;
 			children = (
+				2A5EC1F82D4007E10056399F /* DSM */,
 				2AB54D312D394C6B00381AF5 /* File+CoreDataClass.swift */,
 				2AB54D322D394C6B00381AF5 /* File+CoreDataProperties.swift */,
 				2A4D81A62D3663E400B20E17 /* Folder+CoreDataClass.swift */,
@@ -104,6 +108,7 @@
 			name = Folderly;
 			packageProductDependencies = (
 				2A9FFD3E2D3BC45500AF1FDA /* SnapKit */,
+				2A5EC2362D400AF70056399F /* DSM */,
 			);
 			productName = Folderly;
 			productReference = 2AE973282D303DBB0096F40E /* Folderly.app */;
@@ -389,6 +394,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2A5EC2362D400AF70056399F /* DSM */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DSM;
+		};
 		2A9FFD3E2D3BC45500AF1FDA /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2A9FFD382D3BC39F00AF1FDA /* XCRemoteSwiftPackageReference "SnapKit" */;
