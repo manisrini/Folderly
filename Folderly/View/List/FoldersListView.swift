@@ -16,12 +16,14 @@ struct FoldersListView: View {
     @State private var isAttachmentSheetPresented = false
     
     
-    @State private var isImagePickerPresented = false
     @State private var filePath: String = ""
     @State private var fileId: UUID?
     @State private var fileName: String = ""
-    @State private var showCamera = false
+    @State private var showFiles = false
     @State private var showPhotoLibrary = false
+    @State private var isPickerPresented = false
+    @State private var pickerType: PickerType = .image
+    @State private var fileExt: FileType = .Image
     
     @State private var textFieldStr : String = ""
     
@@ -112,6 +114,14 @@ struct FoldersListView: View {
             .confirmationDialog("Choose an Option", isPresented: $isAttachmentSheetPresented) {
                 
                 Button {
+                    pickerType = .document
+                    showFiles = true
+                } label: {
+                    Text("Document")
+                }
+                
+                Button {
+                    pickerType = .image
                     showPhotoLibrary = true
                 } label: {
                     Text("Photos Library")
@@ -131,22 +141,24 @@ struct FoldersListView: View {
             }
 
             .buttonStyle(.plain)
-//            .sheet(isPresented: $showCamera) {
-//                ImagePicker(
-//                    sourceType: .camera,
-//                    isImagePickerPresented: $showCamera,
-//                    filePath: $filePath,
-//                    fileId: $fileId,
-//                    fileName: $fileName
-//                )
-//            }
-            .sheet(isPresented: $showPhotoLibrary) {
-                ImagePicker(
-                    sourceType: .photoLibrary,
-                    isImagePickerPresented: $showPhotoLibrary,
+            .sheet(isPresented: $showFiles) {
+                AttachmentPicker(
+                    pickerType: pickerType,
+                    isPickerPresented: $showFiles,
                     filePath: $filePath,
                     fileId: $fileId,
-                    fileName: $fileName
+                    fileName: $fileName,
+                    fileExtension: $fileExt
+                )
+            }
+            .sheet(isPresented: $showPhotoLibrary) {
+                AttachmentPicker(
+                    pickerType: pickerType,
+                    isPickerPresented: $showPhotoLibrary,
+                    filePath: $filePath,
+                    fileId: $fileId,
+                    fileName: $fileName,
+                    fileExtension: $fileExt
                 )
             }
             .onChange(of: filePath) {
@@ -156,8 +168,9 @@ struct FoldersListView: View {
                     fileId: fileId ?? UUID(),
                     fileName: fileName,
                     filePath: filePath,
-                    fileType: .Image
+                    fileType: fileExt
                 )
+                
             }
         }
         .onAppear{

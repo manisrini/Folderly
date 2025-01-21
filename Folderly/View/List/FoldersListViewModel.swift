@@ -234,7 +234,7 @@ class FoldersListViewModel : ObservableObject {
                         _self.listData.append(
                             .init(
                                 id : file.id,
-                                type: .Image,
+                                type: FileType(rawValue: file.type ?? "") ?? .Image,
                                 name: file.name ?? defaultStr,
                                 creationDate: file.creationDate,
                                 image: _self.getImagePath(relativePath: file.filePath),
@@ -262,7 +262,7 @@ class FoldersListViewModel : ObservableObject {
                         _self.listData.append(
                             .init(
                                 id : file.id,
-                                type: .Image,
+                                type: FileType(rawValue: file.type ?? "") ?? .Image,
                                 name: file.name ?? defaultStr,
                                 creationDate: file.creationDate,
                                 image: _self.getImagePath(relativePath: file.filePath),

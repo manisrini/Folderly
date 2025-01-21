@@ -137,7 +137,8 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
                     rootView: FileCellView(
                         image: item.image,
                         name: name,
-                        createdTime: createdDate
+                        createdTime: createdDate,
+                        fileType: item.type
                     )
                 )
                 cell.contentView.addSubview(fileHostingView.view)

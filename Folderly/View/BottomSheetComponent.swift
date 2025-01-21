@@ -24,7 +24,7 @@ struct BottomSheetComponent: View {
                 }
                 
                 
-                FButton(name: "Add Image") {
+                FButton(name: "Add File") {
                     showOptionsSheet = false
                     showAttachmentSheet = true
                     self.didTapAddAttachment?()

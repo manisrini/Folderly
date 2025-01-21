@@ -39,7 +39,7 @@ struct SortMenuView : View {
         }
         
         let files = self.items.filter { model in
-            model.type == .Image
+            model.type == .Image || model.type == .Pdf
         }
         
         let sortedFolders = folders.sorted { prev, current in
@@ -55,7 +55,7 @@ struct SortMenuView : View {
         }
         
         let files = self.items.filter { model in
-            model.type == .Image
+            model.type == .Image || model.type == .Pdf
         }
         
         let sortedFolders = folders.sorted { prev, current in

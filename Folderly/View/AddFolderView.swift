@@ -28,6 +28,7 @@ struct AddFolderView: View {
             HStack{
                 FButton(name: "Cancel") {
                     isAddSheetPresented = false
+                    textFieldStr.removeAll()
                 }
                 
                 FButton(name: "Create") {
