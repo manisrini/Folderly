@@ -6,9 +6,9 @@
   <img src="List.png" width="200" height="450" >
 </div>
 
-*Sort*:
+*Sort Options*:
 <div>
-  <img src="Sort.PNG" width="200" height="450" >
+  <img src="Sort.png" width="200" height="450" >
 </div>
 
 *Add Options*:
@@ -30,3 +30,15 @@
 <div>
   <img src="RemoveFromFav.png" width="200" height="450" >
 </div>
+
+*Image preview:*
+<div>
+  <img src="ImgPreview.png" width="200" height="450" >
+</div>
+
+*Pdf preview:*
+<div>
+  <img src="PdfPreview.png" width="200" height="450" >
+</div>
+
+
