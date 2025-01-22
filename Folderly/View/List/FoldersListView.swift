@@ -11,10 +11,8 @@ struct FoldersListView: View {
     
     var parentFolderId : UUID? = nil
     
-    @State private var isOptionsSheetPresented = false
-    @State private var isAddFolderSheetPresented = false
     @State private var isAttachmentSheetPresented = false
-    
+    @State private var isAddFolderSheetPresented = false
     
     @State private var filePath: String = ""
     @State private var fileId: UUID?
@@ -27,38 +25,32 @@ struct FoldersListView: View {
     
     @State private var textFieldStr : String = ""
     
-    @StateObject var viewModel : FoldersListViewModel
-    @State private var doPresentView: Bool = false
-    @State private var selectedFolder: ListViewModel?
-    @State private var selectedFile: ListViewModel = .init(id: UUID(uuidString: ""), type: .Image, name: "TTT", creationDate: nil, isFavourite: false)
+    @ObservedObject var viewModel : FoldersListViewModel
     
     @State private var showMenu = false
     @State private var longPressedItemIndexPath: IndexPath = IndexPath(row: 0, section: 0)
 
     @State private var isPreviewPresented: Bool = false
+    
+    var onFolderTap: ((ListViewModel) -> Void)?
+    var onFileTap: ((ListViewModel) -> Void)?
 
-    init(viewModel : FoldersListViewModel){
+    init(viewModel : FoldersListViewModel,onFolderTap: ((ListViewModel) -> Void)? = nil,onFileTap: ((ListViewModel) -> Void)? = nil){
         print("init foldersListView \(viewModel)\n")
-        _viewModel = StateObject(wrappedValue: viewModel)
+        self.viewModel = viewModel
+        self.onFileTap = onFileTap
+        self.onFolderTap = onFolderTap
     }
     
     var body: some View {
-        NavigationStack {
             CollectionViewRepresentable(
                 items: $viewModel.listData,
                 onFolderTapped: { folder in
-                    if !doPresentView {
-                        print("selectedFolder => \(selectedFolder) doPresentView =< \(doPresentView) \n")
-                        selectedFolder = folder
-                        doPresentView = true
-                        print("selectedFolder => \(selectedFolder) doPresentView =< \(doPresentView) \n")
-                    }
+                    self.onFolderTap?(folder)
                 }, onFileTapped: { file in
-                    selectedFile = file
-                    isPreviewPresented = true
+                    self.onFileTap?(file)
                 },
                 onLongPress: { indexPath in
-                    print(indexPath)
                     if indexPath.row < viewModel.listData.count {
                         DispatchQueue.main.async {
                             showMenu = true
@@ -68,38 +60,10 @@ struct FoldersListView: View {
                     }
                 }
             )
-            .navigationDestination(isPresented: $doPresentView){
-                let _ = print("inside navigationDestination doPresentView =< \(doPresentView)\n")
-                let _ = print("inside navigationDestination selectedFolder =< \(selectedFolder)\n")
-                let folder = selectedFolder
-                FoldersListView(viewModel: FoldersListViewModel(folder: folder))
-            }
-            .navigationDestination(isPresented: $isPreviewPresented){
-                FilePreviewView(file: .init(id: selectedFile.id, name: selectedFile.name, path: selectedFile.filePath, type: selectedFile.type))
-            }
-            .toolbarRole(.editor)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text(self.viewModel.getNavBarTitle())
-                        .font(.title)
-                }
-                ToolbarItemGroup{
-
-                    SortMenuView(items: $viewModel.listData)
-                        
-                    Button {
-                        isOptionsSheetPresented.toggle()
-                    } label: {
-                        Image(systemName: "plus")
-                            .foregroundStyle(.blue)
-                    }
-
-                }
-            }
-            .sheet(isPresented: $isOptionsSheetPresented) {
+            .sheet(isPresented: $viewModel.isOptionsSheetPresented) {
                 BottomSheetComponent(
                     showAddSheet: $isAddFolderSheetPresented,
-                    showOptionsSheet: $isOptionsSheetPresented,
+                    showOptionsSheet: $viewModel.isOptionsSheetPresented,
                     showAttachmentSheet: $isAttachmentSheetPresented
                 )
                 .presentationDetents([.height(100)])
@@ -139,21 +103,12 @@ struct FoldersListView: View {
                 Button("Cancel", role: .cancel) {}
             }
             .sheet(isPresented: $showMenu){
-                let _ = print(showMenu)
-                let _ = print(longPressedItemIndexPath)
-
                 LongPressOptionsView(item: self.viewModel.listData[longPressedItemIndexPath.row]) {
                     self.viewModel.updateFavourite(for: longPressedItemIndexPath)
                     showMenu = false
                 }
                 .presentationDetents([.height(100)])
             }
-//            .sheet(isPresented: $isPreviewPresented){
-//                let file = selectedFile
-//                FilePreviewView(file: .init(id: file.id, name: file.name, path: file.filePath, type: file.type))
-//                
-//            }
-
             .buttonStyle(.plain)
             .sheet(isPresented: $showFiles) {
                 AttachmentPicker(
@@ -186,13 +141,20 @@ struct FoldersListView: View {
                 )
                 
             }
-        }
         .onAppear{
             if let directoryLocation = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).last {
                 print("Core Data Path : Documents Directory: \(directoryLocation) Application Support")
             }
             viewModel.getListData()
         }        
+    }
+    
+    func updateShowOptionsSheetPresented(_ show : Bool){
+        self.viewModel.isOptionsSheetPresented = show
+    }
+    
+    func updateItems(_ items : [ListViewModel]){
+        self.viewModel.listData = items
     }
 }
 

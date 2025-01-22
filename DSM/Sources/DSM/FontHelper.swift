@@ -46,7 +46,7 @@ public struct FontHelper{
 public struct CustomFont : ViewModifier{
     
     var font : Fonts
-    
+        
     func getFontName(font : Fonts) -> String{
         switch font {
         case .Roboto(let style, _):

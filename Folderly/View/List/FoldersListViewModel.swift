@@ -30,6 +30,8 @@ struct ListViewModel : Hashable {
 class FoldersListViewModel : ObservableObject {
     
     @Published var listData : [ListViewModel] = []
+    @Published var isOptionsSheetPresented = false
+
     var foldersList : [ListViewModel] = []
     var folder : ListViewModel? = nil
     var dataManager : FileDataHelper
@@ -209,20 +211,6 @@ class FoldersListViewModel : ObservableObject {
         }
     }
     
-    func getFilePath(relativePath : String?) -> URL? {
-        if let relativePath = relativePath{
-            let fileManager = FileManager.default
-            if let documentDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first{
-                let filePath = documentDir.appending(path: relativePath)
-                return filePath
-//                if let imageData = try? Data(contentsOf: filePath){
-//                    return UIImage(data: imageData)
-//                }
-            }
-        }
-        return nil
-    }
-    
     func addFile(fileId : UUID,fileName : String,filePath : String,fileType : FileType){
         
         if let folder = folder, let folderId = folder.id{
@@ -307,6 +295,19 @@ class FoldersListViewModel : ObservableObject {
     }
     
     //MARK: Utils
+    
+    func getFilePath(relativePath : String?) -> URL? {
+        if let relativePath = relativePath{
+            let fileManager = FileManager.default
+            if let documentDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first{
+                let filePath = documentDir.appending(path: relativePath)
+                return filePath
+            }
+        }
+        return nil
+    }
+
+    
     func getDateStr(date : Date?) -> String{
         
         let dateStr = "Created on: "
@@ -331,4 +332,42 @@ class FoldersListViewModel : ObservableObject {
         return "Folderly"
     }
     
+    func updateAddFolderSheet(){
+        self.isOptionsSheetPresented = true
+    }
+    
+    
+    func sortByDate() {
+        
+        let folders = self.listData.filter { model in
+            model.type == .Folder
+        }
+        
+        let files = self.listData.filter { model in
+            model.type == .Image || model.type == .Pdf
+        }
+        
+        let sortedFolders = folders.sorted { prev, current in
+            prev.creationDate ?? Date() > current.creationDate ?? Date()
+        }
+        
+        self.listData = sortedFolders + files
+    }
+    
+    func sortByName() {
+        let folders = self.listData.filter { model in
+            model.type == .Folder
+        }
+        
+        let files = self.listData.filter { model in
+            model.type == .Image || model.type == .Pdf
+        }
+        
+        let sortedFolders = folders.sorted { prev, current in
+            prev.name < current.name
+        }
+        
+        self.listData = sortedFolders + files
+    }
+
 }

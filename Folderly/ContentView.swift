@@ -12,16 +12,26 @@ import DSM
 struct ContentView: View {
     
     var body: some View {
-        FoldersListView(viewModel: FoldersListViewModel())
+        FolderNavigationControllerWrapper()
+            .edgesIgnoringSafeArea(.all)
             .onAppear{
                 FontHelper.registerFonts()
             }
     }
 }
 
-
-
-
 #Preview {
     ContentView()
+}
+
+
+struct FolderNavigationControllerWrapper: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let viewModel = FoldersListViewModel()
+        let rootViewController = FoldersListViewController(viewModel: viewModel)
+        let navigationController = UINavigationController(rootViewController: rootViewController)
+        return navigationController
+    }
+    
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
 }

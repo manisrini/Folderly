@@ -104,6 +104,11 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if items.count == 0{
+            collectionView.setEmptyMessageText("No data found", textColor: .black)
+        } else{
+            collectionView.setEmptyMessageText("", textColor: .clear)
+        }
         return items.count
     }
     

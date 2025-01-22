@@ -21,17 +21,22 @@ struct FilePreviewView: View {
     
     var body: some View {
         VStack {
-            RobotoText(name: file.name,style: .Bold,size: 20,lineLimit: 2)
-                .padding(10)
+            RobotoText(
+                name: file.name,
+                style: .Bold,
+                size: 20,
+                lineLimit: 2
+            )
+            .padding(10)
+            
             if file.type == .Image {
                 if let filePath = file.path{
                     if let imageData = try? Data(contentsOf: filePath){
                         if let uiImage = UIImage(data: imageData) {
                             Image(uiImage: uiImage)
                                 .resizable()
-                                .scaledToFit()
-                                .frame(height: UIScreen.main.bounds.height * 0.5)
-                                .padding()
+                                .frame(height: 300)
+                                .padding(20)
                         } else {
                             Text("Image not found")
                         }

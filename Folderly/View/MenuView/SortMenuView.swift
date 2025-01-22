@@ -8,18 +8,19 @@ import SwiftUI
 
 struct SortMenuView : View {
     
-   @Binding var items : [ListViewModel]
+    let didTapSortByName : (() -> Void)?
+    let didTapSortByDate : (() -> Void)?
         
     var body : some View{
         Menu {
             Button{
-                self.sortByName()
+                self.didTapSortByName?()
             } label: {
                 Label("Name", systemImage: "textformat")
             }
             
             Button{
-                self.sortByDate()
+                self.didTapSortByDate?()
             }label: {
                 Label("Date", systemImage: "calendar")
             }
@@ -29,42 +30,5 @@ struct SortMenuView : View {
                 .frame(width: 20, height: 17)
                 .foregroundStyle(.blue)
         }
-
     }
-    
-    private func sortByDate() {
-        
-        let folders = self.items.filter { model in
-            model.type == .Folder
-        }
-        
-        let files = self.items.filter { model in
-            model.type == .Image || model.type == .Pdf
-        }
-        
-        let sortedFolders = folders.sorted { prev, current in
-            prev.creationDate ?? Date() > current.creationDate ?? Date()
-        }
-        
-        self.items = sortedFolders + files
-    }
-    
-    private func sortByName() {
-        let folders = self.items.filter { model in
-            model.type == .Folder
-        }
-        
-        let files = self.items.filter { model in
-            model.type == .Image || model.type == .Pdf
-        }
-        
-        let sortedFolders = folders.sorted { prev, current in
-            prev.name < current.name
-        }
-        
-        self.items = sortedFolders + files
-
-    }
-    
-
 }
