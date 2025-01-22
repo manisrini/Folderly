@@ -61,7 +61,7 @@ struct FoldersListView: View {
                 }
             )
             .sheet(isPresented: $viewModel.isOptionsSheetPresented) {
-                BottomSheetComponent(
+                OptionsComponent(
                     showAddSheet: $isAddFolderSheetPresented,
                     showOptionsSheet: $viewModel.isOptionsSheetPresented,
                     showAttachmentSheet: $isAttachmentSheetPresented

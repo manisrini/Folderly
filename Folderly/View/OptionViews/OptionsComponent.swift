@@ -8,7 +8,7 @@
 import SwiftUI
 import DSM
 
-struct BottomSheetComponent: View {
+struct OptionsComponent: View {
     
     @Binding var showAddSheet : Bool
     @Binding var showOptionsSheet : Bool
@@ -40,5 +40,5 @@ struct BottomSheetComponent: View {
 }
 
 #Preview {
-    BottomSheetComponent(showAddSheet: .constant(true), showOptionsSheet: .constant(true), showAttachmentSheet: .constant(true))
+    OptionsComponent(showAddSheet: .constant(true), showOptionsSheet: .constant(true), showAttachmentSheet: .constant(true))
 }
