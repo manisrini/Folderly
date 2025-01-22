@@ -12,16 +12,18 @@ public struct RobotoText: View {
     let name : String
     let style : Roboto
     let size : CGFloat
+    let lineLimit: Int
     
-    public init(name: String,style : Roboto = .Regular, size : CGFloat = 14){
+    public init(name: String,style : Roboto = .Regular, size : CGFloat = 14, lineLimit: Int = 1){
         self.name = name
         self.style = style
         self.size = size
+        self.lineLimit = lineLimit
     }
     
     public var body: some View {
         Text(name)
-            .lineLimit(1)
+            .lineLimit(lineLimit)
             .customFontStyle(.Roboto(style, size))
     }
 }

@@ -17,15 +17,13 @@ enum FileType : String {
 
 
 struct FileCellView: View {
-    
-    let image : UIImage?
+    let filePath : URL?
     let name : String
     let createdTime : String
     let fileType : FileType
-    let didTapMenu : (()->())? = nil
     
-    init(image: UIImage?, name: String, createdTime: String,fileType : FileType = .Pdf) {
-        self.image = image
+    init(filePath : URL?, name: String, createdTime: String,fileType : FileType = .Pdf) {
+        self.filePath = filePath
         self.name = name
         self.createdTime = createdTime
         self.fileType = fileType
@@ -35,16 +33,20 @@ struct FileCellView: View {
     var body: some View {
         HStack(spacing : 20){
             if fileType == .Image{
-                if let _image = self.image{
-                    Image(uiImage: _image)
-                        .resizable()
-                        .frame(width: 40,height: 40)
-                        .clipShape(Circle())
-                }else{
-                    Image(systemName: "photo")
-                        .resizable()
-                        .foregroundStyle(.gray)
-                        .frame(width: 30,height: 30)
+                if let filePath = filePath{
+                    if let imageData = try? Data(contentsOf: filePath){
+                        if let _image = UIImage(data: imageData){
+                            Image(uiImage: _image)
+                                .resizable()
+                                .frame(width: 40,height: 40)
+                                .clipShape(Circle())
+                        }else{
+                            Image(systemName: "photo")
+                                .resizable()
+                                .foregroundStyle(.gray)
+                                .frame(width: 30,height: 30)
+                        }
+                    }
                 }
             } else if fileType == .Pdf{
                 Image(systemName: "doc.richtext")
@@ -63,5 +65,5 @@ struct FileCellView: View {
 }
 
 #Preview {
-    FileCellView(image: nil, name: "Resume-dfsdf-sdf-sdfsdf-sdfsdfsdfsdf", createdTime: "Created on 12/12/2-24")
+    FileCellView(filePath: nil, name: "Resume-dfsdf-sdf-sdfsdf-sdfsdfsdfsdf", createdTime: "Created on 12/12/2-24")
 }

@@ -11,6 +11,7 @@ struct CollectionViewRepresentable : UIViewRepresentable{
 
     @Binding var items: [ListViewModel]
     var onFolderTapped: (ListViewModel) -> Void
+    var onFileTapped: (ListViewModel) -> Void
     var onLongPress: (IndexPath) -> Void
 
     func makeUIView(context: Context) -> UICollectionView {
@@ -135,7 +136,7 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
                 
                 let fileHostingView = UIHostingController(
                     rootView: FileCellView(
-                        image: item.image,
+                        filePath: item.filePath,
                         name: name,
                         createdTime: createdDate,
                         fileType: item.type
@@ -161,6 +162,8 @@ class Coordinator : NSObject, UICollectionViewDelegate, UICollectionViewDataSour
         let item = items[indexPath.row]
         if item.type == .Folder {
             parent.onFolderTapped(item) 
+        }else{
+            parent.onFileTapped(item)
         }
     }
 

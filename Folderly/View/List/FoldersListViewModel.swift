@@ -14,15 +14,15 @@ struct ListViewModel : Hashable {
     let type : FileType
     let name : String
     let creationDate : Date?
-    let image : UIImage?
+    let filePath : URL?
     let isFavourite : Bool
     
-    init(id : UUID?,type: FileType, name: String, creationDate: Date?, image: UIImage? = nil,isFavourite : Bool) {
+    init(id : UUID?,type: FileType, name: String, creationDate: Date?, filePath: URL? = nil,isFavourite : Bool) {
         self.id = id
         self.type = type
         self.name = name
         self.creationDate = creationDate
-        self.image = image
+        self.filePath = filePath
         self.isFavourite = isFavourite
     }
 }
@@ -163,7 +163,7 @@ class FoldersListViewModel : ObservableObject {
                                 type: FileType(rawValue: file.type ?? defaultStr) ?? .Image,
                                 name: file.name ?? defaultStr ,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath),
+                                filePath: _self.getFilePath(relativePath: file.filePath),
                                 isFavourite: false
                             )
                         )
@@ -194,7 +194,7 @@ class FoldersListViewModel : ObservableObject {
                                 type: FileType(rawValue: file.type ?? defaultStr) ?? .Image,
                                 name: file.name ?? defaultStr ,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath),
+                                filePath: _self.getFilePath(relativePath: file.filePath),
                                 isFavourite: false
                             )
                         )
@@ -209,14 +209,15 @@ class FoldersListViewModel : ObservableObject {
         }
     }
     
-    func getImagePath(relativePath : String?) -> UIImage? {
+    func getFilePath(relativePath : String?) -> URL? {
         if let relativePath = relativePath{
             let fileManager = FileManager.default
             if let documentDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first{
                 let filePath = documentDir.appending(path: relativePath)
-                if let imageData = try? Data(contentsOf: filePath){
-                    return UIImage(data: imageData)
-                }
+                return filePath
+//                if let imageData = try? Data(contentsOf: filePath){
+//                    return UIImage(data: imageData)
+//                }
             }
         }
         return nil
@@ -237,7 +238,7 @@ class FoldersListViewModel : ObservableObject {
                                 type: FileType(rawValue: file.type ?? "") ?? .Image,
                                 name: file.name ?? defaultStr,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath),
+                                filePath: _self.getFilePath(relativePath: file.filePath),
                                 isFavourite: false
                             )
                         )
@@ -265,7 +266,7 @@ class FoldersListViewModel : ObservableObject {
                                 type: FileType(rawValue: file.type ?? "") ?? .Image,
                                 name: file.name ?? defaultStr,
                                 creationDate: file.creationDate,
-                                image: _self.getImagePath(relativePath: file.filePath),
+                                filePath: _self.getFilePath(relativePath: file.filePath),
                                 isFavourite: false
                             )
                         )

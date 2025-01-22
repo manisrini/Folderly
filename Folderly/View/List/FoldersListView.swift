@@ -30,9 +30,12 @@ struct FoldersListView: View {
     @StateObject var viewModel : FoldersListViewModel
     @State private var doPresentView: Bool = false
     @State private var selectedFolder: ListViewModel?
+    @State private var selectedFile: ListViewModel = .init(id: UUID(uuidString: ""), type: .Image, name: "TTT", creationDate: nil, isFavourite: false)
     
     @State private var showMenu = false
     @State private var longPressedItemIndexPath: IndexPath = IndexPath(row: 0, section: 0)
+
+    @State private var isPreviewPresented: Bool = false
 
     init(viewModel : FoldersListViewModel){
         print("init foldersListView \(viewModel)\n")
@@ -50,6 +53,9 @@ struct FoldersListView: View {
                         doPresentView = true
                         print("selectedFolder => \(selectedFolder) doPresentView =< \(doPresentView) \n")
                     }
+                }, onFileTapped: { file in
+                    selectedFile = file
+                    isPreviewPresented = true
                 },
                 onLongPress: { indexPath in
                     print(indexPath)
@@ -67,6 +73,9 @@ struct FoldersListView: View {
                 let _ = print("inside navigationDestination selectedFolder =< \(selectedFolder)\n")
                 let folder = selectedFolder
                 FoldersListView(viewModel: FoldersListViewModel(folder: folder))
+            }
+            .navigationDestination(isPresented: $isPreviewPresented){
+                FilePreviewView(file: .init(id: selectedFile.id, name: selectedFile.name, path: selectedFile.filePath, type: selectedFile.type))
             }
             .toolbarRole(.editor)
             .toolbar {
@@ -139,6 +148,11 @@ struct FoldersListView: View {
                 }
                 .presentationDetents([.height(100)])
             }
+//            .sheet(isPresented: $isPreviewPresented){
+//                let file = selectedFile
+//                FilePreviewView(file: .init(id: file.id, name: file.name, path: file.filePath, type: file.type))
+//                
+//            }
 
             .buttonStyle(.plain)
             .sheet(isPresented: $showFiles) {
@@ -185,3 +199,5 @@ struct FoldersListView: View {
 #Preview {
     FoldersListView(viewModel: FoldersListViewModel())
 }
+
+
